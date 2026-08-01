@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactElement } from 'react';
 import { BannerAd } from './ads/BannerAd';
 import { AD_GROUP_ID } from './ads/config';
+import { bumpInterstitial } from './ads/interstitial';
 import {
   bedtimesForWake,
   formatDuration,
@@ -106,7 +107,7 @@ export function App() {
             role="tab"
             aria-selected={tab === t}
             className={`tab${tab === t ? ' on' : ''}`}
-            onClick={() => setTab(t)}
+            onClick={() => { setTab(t); bumpInterstitial(3); }}
           >
             {TAB_ICONS[t]}
             <span>{t}</span>
