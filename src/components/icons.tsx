@@ -54,6 +54,26 @@ export const BedIcon = ({ size }: { size?: number }) => (
   </Icon>
 );
 
+export const NoteIcon = ({ size }: { size?: number }) => (
+  <Icon size={size}>
+    <path d="M7 3h7l4 4v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm7 0v4h4" />
+    <path d="M9.5 12h5m-5 4h5" />
+  </Icon>
+);
+
+export const FlameIcon = ({ size }: { size?: number }) => (
+  <Icon size={size}>
+    <path d="M12 3s1 2.5-.5 5C10 10.5 8 11 8 14a4 4 0 0 0 8 0c0-1.4-.6-2.4-1.2-3.3-.4.8-.9 1.3-1.6 1.6.6-2.6-.2-6.5-1.2-9.3Z" />
+  </Icon>
+);
+
+export const TrashIcon = ({ size }: { size?: number }) => (
+  <Icon size={size}>
+    <path d="M4 7h16M10 7V5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2" />
+    <path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" />
+  </Icon>
+);
+
 export const SaveIcon = ({ size }: { size?: number }) => (
   <Icon size={size}>
     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z" />
