@@ -266,12 +266,13 @@ export function App() {
         </section>
       )}
 
-      <BannerAd adGroupId={AD_GROUP_ID} />
-
       <p className="disclaimer">
         일반적인 수면 상식과 평균값에 기반한 참고용 정보이며 의학적 조언이 아니에요. 수면 문제가
         지속되면 전문의와 상담하세요. 모든 데이터는 기기 안에만 저장돼요.
       </p>
+
+      {/* 배너는 sticky라 마지막에 와야 화면 하단에 붙는다 */}
+      <BannerAd adGroupId={AD_GROUP_ID} />
     </div>
   );
 }

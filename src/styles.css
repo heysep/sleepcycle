@@ -18,7 +18,8 @@ body {
 }
 button { font-family: inherit; border: none; background: none; cursor: pointer; color: inherit; }
 
-.app { max-width: 480px; margin: 0 auto; padding: 28px 20px 40px; display: flex; flex-direction: column; gap: 16px; }
+/* min-height: sticky 배너가 짧은 화면에서도 하단에 붙으려면 컨테이너가 화면 높이여야 한다 */
+.app { max-width: 480px; margin: 0 auto; min-height: 100dvh; padding: 28px 20px 0; display: flex; flex-direction: column; gap: 16px; }
 
 .hdr { display: flex; align-items: center; gap: 12px; }
 .hdr-icon {
@@ -143,7 +144,31 @@ button { font-family: inherit; border: none; background: none; cursor: pointer; 
 .tip-title { font-size: 15px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
 .tip-body { font-size: 14px; color: var(--sub); line-height: 1.65; }
 
-.ad-banner { display: flex; flex-direction: column; gap: 4px; }
+/**
+ * 배너는 화면 하단에 붙여 둔다.
+ *
+ * 문서 맨 아래에 그냥 두면 스크롤해야만 보인다. sticky를 쓰는 이유는 문서 흐름에서
+ * 자기 자리를 그대로 차지하기 때문 — 마지막 콘텐츠를 덮지 않고 여백 계산도 필요 없다.
+ * .app에 min-height: 100dvh가 있어야 콘텐츠가 짧은 화면에서도 하단에 붙는다.
+ */
+.ad-banner {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  /* .app의 좌우 패딩(20px)을 상쇄해 화면 끝까지 채운다 */
+  margin: 4px -20px 0;
+  /* margin-top: auto — sticky는 스크롤이 없으면 요소를 아래로 밀지 못한다. 콘텐츠가 짧아
+     스크롤이 안 생기는 화면에서는 flex의 auto 마진이 배너를 바닥까지 민다.
+     콘텐츠가 길면 auto가 0이 되고 sticky가 일한다. (shorthand 뒤에 와야 안 덮인다) */
+  margin-top: auto;
+  padding: 6px 20px calc(6px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg);
+  border-top: 1px solid var(--line);
+}
 .ad-banner-label { font-size: 11px; color: var(--sub); }
 
-.disclaimer { font-size: 12px; color: #93a3bd; line-height: 1.6; }
+/* .app의 padding-bottom을 여기로 옮겼다 — sticky 배너는 컨테이너 content box 안에서만
+   내려가므로 padding-bottom이 있으면 그만큼 위에 멈춘다. 배너가 없는 환경(토스 밖)에서도
+   하단 여백이 유지되도록 마지막 콘텐츠인 면책 고지가 대신 갖는다. */
+.disclaimer { font-size: 12px; color: #93a3bd; line-height: 1.6; margin-bottom: 40px; }
