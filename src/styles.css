@@ -172,3 +172,27 @@ button { font-family: inherit; border: none; background: none; cursor: pointer; 
    내려가므로 padding-bottom이 있으면 그만큼 위에 멈춘다. 배너가 없는 환경(토스 밖)에서도
    하단 여백이 유지되도록 마지막 콘텐츠인 면책 고지가 대신 갖는다. */
 .disclaimer { font-size: 12px; color: #93a3bd; line-height: 1.6; margin-bottom: 40px; }
+
+/* ---------- 리워드 광고 보너스: 취침 시각별 기상 시각 표 ---------- */
+.bonus-cta {
+  min-height: 48px; border-radius: 14px; width: 100%; margin-top: 14px;
+  border: 1.5px dashed var(--accent); color: var(--navy-deep);
+  background: transparent; font-size: 14px; font-weight: 700;
+}
+.bonus-cta:disabled { opacity: 0.5; }
+.bonus-box { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 14px; }
+/* 표는 가로로 넘칠 여지를 항상 남긴다 — 360px에서 잘리는 사고를 막는다 */
+.grid-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; }
+.wake-grid {
+  width: 100%; border-collapse: collapse; table-layout: fixed;
+  font-size: 13px; color: var(--text);
+}
+.wake-grid th, .wake-grid td {
+  padding: 8px 4px; text-align: center; border-bottom: 1px solid var(--line);
+  white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.wake-grid thead th { font-size: 12px; color: var(--sub); font-weight: 600; }
+.wake-grid tbody th { font-weight: 700; color: var(--navy); }
+.wake-grid td { font-weight: 600; }
+.wake-grid td.near { background: #e8f1ff; color: var(--navy-deep); border-radius: 8px; }
+.grid-dur { display: block; font-size: 11px; font-weight: 500; color: var(--sub); margin-top: 2px; }

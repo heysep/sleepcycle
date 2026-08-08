@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { BannerAd } from './ads/BannerAd';
 import { AD_GROUP_ID } from './ads/config';
 import { bumpInterstitial } from './ads/interstitial';
+import { canShowRewarded, showRewarded } from './ads/rewarded';
 import {
   bedtimesForWake,
   formatDuration,
@@ -69,6 +70,18 @@ const TIPS: { title: string; body: string }[] = [
   },
 ];
 
+/** 보너스 표에 올릴 취침 시각 후보 (30분 간격, 22:00~01:30). "지금"은 히어로와 겹쳐서 넣지 않는다. */
+const BONUS_BEDTIMES = [22 * 60, 22 * 60 + 30, 23 * 60, 23 * 60 + 30, 0, 30, 60, 90];
+/** 보너스 표에 올릴 사이클 수 */
+const BONUS_CYCLES = [4, 5, 6] as const;
+/** 기상 목표와 "가까움"으로 표시할 허용 오차(분) */
+const BONUS_NEAR_MIN = 20;
+
+/** 두 시각(minute-of-day) 사이의 최단 거리(분). 자정을 넘겨도 올바르게 나온다. */
+function clockGap(a: number, b: number): number {
+  return Math.abs((((a - b) % 1440) + 1440 + 720) % 1440 - 720);
+}
+
 function nowMinute(): number {
   const d = new Date();
   return d.getHours() * 60 + d.getMinutes();
@@ -106,6 +119,38 @@ export function App() {
   const today = todayISO();
   const streak = streakOf(records, today);
   const week = recentStats(records, today, 7);
+
+  // 보너스: 취침 시각 후보별 기상 시각 비교표. 위 화면(지금 기준·기상 목표 역산)은 그대로 무료다.
+  const [bonus, setBonus] = useState(false);
+  const [bonusLoading, setBonusLoading] = useState(false);
+  const unlockBonus = () => {
+    if (bonus || bonusLoading) return;
+    setBonusLoading(true);
+    showRewarded({ onReward: () => setBonus(true), onClose: () => setBonusLoading(false) });
+  };
+  const bonusRows = useMemo(
+    () =>
+      BONUS_BEDTIMES.map((bed) => {
+        const cells = wakeTimesFromNow(bed).filter((o) =>
+          (BONUS_CYCLES as readonly number[]).includes(o.cycles),
+        );
+        // 저장한 기상 목표에 가장 가까운 칸 — 이 대조는 지금 화면 어디에서도 못 하는 계산이다
+        let nearest = -1;
+        if (wakeMin !== null) {
+          let best = Infinity;
+          cells.forEach((c, i) => {
+            const gap = clockGap(c.time, wakeMin);
+            if (gap < best) {
+              best = gap;
+              nearest = i;
+            }
+          });
+          if (best > BONUS_NEAR_MIN) nearest = -1;
+        }
+        return { bed, cells, nearest };
+      }),
+    [wakeMin],
+  );
 
   const commit = (next: SleepRecord[]) => {
     setRecords(next);
@@ -224,6 +269,53 @@ export function App() {
             </>
           ) : (
             <p className="panel-desc">기상 시각을 선택해 주세요.</p>
+          )}
+
+          {canShowRewarded() && !bonus && (
+            <button className="bonus-cta" onClick={unlockBonus} disabled={bonusLoading}>
+              {bonusLoading ? '광고 확인 중' : '광고 보고 취침 시각별 기상 시각 표 보기'}
+            </button>
+          )}
+          {bonus && (
+            <div className="bonus-box">
+              <span className="field-label">취침 시각별 기상 시각</span>
+              <p className="panel-desc">
+                누울 시각을 정해 두고 사이클 수별 기상 시각을 한눈에 비교해요. 잠드는 데 걸리는 평균
+                14분을 더한 값이에요.
+              </p>
+              <div className="grid-scroll">
+                <table className="wake-grid">
+                  <thead>
+                    <tr>
+                      <th scope="col">누울 시각</th>
+                      {BONUS_CYCLES.map((c) => (
+                        <th key={c} scope="col">
+                          {c}사이클
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bonusRows.map((row) => (
+                      <tr key={row.bed}>
+                        <th scope="row">{formatTime(row.bed)}</th>
+                        {row.cells.map((cell, i) => (
+                          <td key={cell.cycles} className={i === row.nearest ? 'near' : undefined}>
+                            {formatTime(cell.time)}
+                            <span className="grid-dur">{formatDuration(cell.sleepMinutes)}</span>
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="panel-desc">
+                {wakeMin === null
+                  ? '기상 시각을 고르면 목표에 가까운 칸을 표시해 드려요.'
+                  : `진하게 표시한 칸이 위에서 고른 기상 시각 ${formatTime(wakeMin)}에 ${BONUS_NEAR_MIN}분 이내로 가까운 칸이에요.`}
+              </p>
+            </div>
           )}
         </section>
       )}
